@@ -76,7 +76,8 @@ Submitted Work/     ← Copy your finished notebooks here to submit
 1. Open a terminal in JupyterLab
 2. Clone this repository:
    ```bash
-   git clone https://github.com/TextMiningUM/ANLP-2026-2027.git
+   git clone https://github.com/TextMiningUM/ANLP-Student.git
+   cd ANLP-Student
    ```
 3. Copy the assignment notebook to your `Personal Workspace/` folder (see workflow below)
 4. Work on the notebook in `Personal Workspace/`
@@ -86,7 +87,7 @@ Submitted Work/     ← Copy your finished notebooks here to submit
 
 When new assignments are released, pull the latest changes:
 ```bash
-cd ANLP-2026-2027
+cd ANLP-Student
 git pull
 ```
 
@@ -101,7 +102,12 @@ valuable context for the assignments.
 Assignment notebooks are in `Assignments/<topic>/`. Each notebook contains:
 - Instructional content explaining the concepts
 - **Exercise cells** where you write your code (marked with `# YOUR CODE HERE`)
+- **Text answer cells** where you write explanations (marked with `YOUR ANSWER HERE`)
 - **Test cells** that validate your solution (do not modify these)
+
+> **Note:** Some assignments use a shared `dataset_loader.py` in the `Assignments/` folder.
+> This file provides helper functions for loading datasets. You don't need to modify it,
+> but you may import functions from it in your notebooks.
 
 ### Assignment Categories
 
@@ -135,22 +141,66 @@ Plus **3 major assignments** (A1-A3) that integrate multiple topics.
 
 ## Local Development
 
-See [LOCAL_SETUP.md](LOCAL_SETUP.md) for detailed instructions on running the
+See [LOCAL_SETUP_STUDENT.md](LOCAL_SETUP_STUDENT.md) for detailed instructions on running the
 notebooks on your own machine. The course JupyterHub is recommended, but local
 development is supported for students who prefer it.
 
 ## Getting Help
 
-- **Technical issues:** Check the [Troubleshooting](LOCAL_SETUP.md#11-troubleshooting) section in LOCAL_SETUP.md
+- **Technical issues:** Check the [Troubleshooting](LOCAL_SETUP_STUDENT.md#12-troubleshooting) section in LOCAL_SETUP_STUDENT.md
 - **Assignment questions:** Post on the course discussion forum
 - **Emergency support:** Contact the course TAs via email
 
 ## Grading & Submission
 
-- All assignments are auto-graded using the test cells in each notebook
+### How Assignments are Graded
+
+- Each notebook contains **test cells** that validate your solutions automatically
+- Your code must pass all test cells to receive full credit
+- Some assignments include **manually graded** sections (marked with `### BEGIN SOLUTION` / `### END SOLUTION`)
+  - These require written explanations or analysis
+  - Graders will read your answers between the solution markers
+- **Points distribution:** Check the point values in each exercise cell header
+
+### Submission Process
+
+1. **Complete the assignment** in your `Personal Workspace/` folder
+2. **Test your work:** Run all cells from top to bottom (Kernel → Restart & Run All)
+   - Ensure all test cells pass
+   - Check that your explanations are complete
+3. **Copy to Submitted Work:**
+   ```bash
+   cp "Personal Workspace/<topic>/<notebook>.ipynb" "Submitted Work/<topic>/"
+   ```
+4. **Keep the original filename** — do not rename the notebook
+5. The grading system will automatically collect notebooks from `Submitted Work/`
+
+### Important Submission Rules
+
 - **Deadline:** Check the course syllabus for individual assignment deadlines
-- **Late submissions:** Consult the course policy in the syllabus
-- **Academic integrity:** All work must be your own; collaboration policy is detailed in the syllabus
+- **Late submissions:** Consult the course policy in the syllabus (typically -10% per day)
+- **Resubmissions:** You may resubmit before the deadline; only the latest version counts
+- **Do not modify:**
+  - Test cells (cells with `assert` statements)
+  - Cell metadata or nbgrader tags
+  - The notebook filename
+- **Academic integrity:** All work must be your own
+  - Collaboration policy is detailed in the course syllabus
+  - Code plagiarism will be detected and penalized
+
+### Checking Your Submission
+
+Before the deadline, verify your submission:
+
+```bash
+# List what you've submitted
+ls -la "Submitted Work/<topic>/"
+
+# Quick test: re-run the notebook
+jupyter nbconvert --to notebook --execute "Submitted Work/<topic>/<notebook>.ipynb"
+```
+
+If the notebook executes without errors, your submission is ready.
 
 ## Prerequisites
 
@@ -169,6 +219,6 @@ This course assumes:
 
 ---
 
-*For local setup instructions, see [LOCAL_SETUP.md](LOCAL_SETUP.md)*
+*For local setup instructions, see [LOCAL_SETUP_STUDENT.md](LOCAL_SETUP_STUDENT.md)*
 
 *Last updated: July 2026*

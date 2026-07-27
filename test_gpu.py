@@ -31,10 +31,10 @@ try:
         print("  1. Check if you have an NVIDIA GPU: nvidia-smi")
         print("  2. Uninstall CPU-only PyTorch: pip uninstall torch torchvision -y")
         print("  3. Install CUDA version: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124")
-        print("  4. See LOCAL_SETUP.md section 7 for detailed instructions")
+        print("  4. See LOCAL_SETUP_STUDENT.md section 12 (Troubleshooting) for detailed instructions")
         
 except ImportError:
     print("❌ PyTorch not installed")
     print("\nInstall with:")
     print("  pip install torch torchvision")
-    print("  (or see requirements.txt and LOCAL_SETUP.md)")
+    print("  (or see requirements.txt and LOCAL_SETUP_STUDENT.md)")

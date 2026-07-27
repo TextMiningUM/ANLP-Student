@@ -13,14 +13,15 @@
 1. [Prerequisites](#1-prerequisites)
 2. [Clone the Repository](#2-clone-the-repository)
 3. [Create a Python Environment](#3-create-a-python-environment)
-4. [Install Python Dependencies](#4-install-python-dependencies)
-5. [Download NLTK Data](#5-download-nltk-data)
-6. [Download spaCy Models](#6-download-spacy-models)
-7. [GPU Support (optional but recommended)](#7-gpu-support-optional-but-recommended)
-8. [OpenAI API Key (Assignments 11, 12 & 16)](#8-openai-api-key-assignments-11-12--16)
-9. [Assignment-specific Notes](#9-assignment-specific-notes)
-10. [Submitting Your Work](#10-submitting-your-work)
-11. [Troubleshooting](#11-troubleshooting)
+4. [Install PyTorch with CUDA](#4-install-pytorch-with-cuda)
+5. [Install Python Dependencies](#5-install-python-dependencies)
+6. [Download NLTK Data](#6-download-nltk-data)
+7. [Download spaCy Models](#7-download-spacy-models)
+8. [Verify GPU Access](#8-verify-gpu-access)
+9. [OpenAI API Key (Assignments 11, 12 & 16)](#9-openai-api-key-assignments-11-12--16)
+10. [Assignment-specific Notes](#10-assignment-specific-notes)
+11. [Submitting Your Work](#11-submitting-your-work)
+12. [Troubleshooting](#12-troubleshooting)
 
 ---
 
@@ -31,6 +32,7 @@
 | **Python** | 3.13 (recommended and tested). Python 3.10–3.12 should also work. Python 3.14+ may cause compatibility issues with some packages. |
 | **pip** | Latest version (`python -m pip install --upgrade pip`) |
 | **Git** | To clone the repository |
+| **GPU** | **NVIDIA GPU required** for all deep learning assignments (06-16). See [Section 4](#4-install-pytorch-with-cuda) for requirements. |
 | **OS** | Windows 10/11, macOS 12+, or Linux (Ubuntu 20.04+) |
 | **RAM** | Minimum 8 GB; 16 GB recommended |
 | **Disk space** | ~10 GB free (for packages, models, and datasets) |
@@ -40,9 +42,11 @@
 ## 2. Clone the Repository
 
 ```bash
-git clone https://github.com/TextMiningUM/ANLP-2026-2027.git
-cd ANLP-2026-2027
+git clone https://github.com/TextMiningUM/ANLP-Student.git
+cd ANLP-Student
 ```
+
+> **Note:** If you're reading this locally, you've likely already cloned the repository.
 
 ---
 
@@ -75,7 +79,34 @@ source .venv/bin/activate
 
 ---
 
-## 4. Install Python Dependencies
+## 4. Install PyTorch with CUDA
+
+**All ANLP assignments require PyTorch with CUDA support.** Install this FIRST, before the other dependencies.
+
+### GPU Requirements
+
+| Component | Requirement |
+|---|---|
+| **GPU** | NVIDIA GPU with Compute Capability 5.0+ |
+| **Supported GPUs** | GTX 1660+, RTX 20/30/40/50 series, A100, H100, L40, RTX 6000, etc. |
+| **NVIDIA Drivers** | Version 525.60.13 or newer (check with `nvidia-smi`) |
+| **VRAM** | Minimum 4 GB; 8+ GB recommended for assignments 07-12 |
+
+### Installation
+
+Install PyTorch 2.6.0 with CUDA 12.4 support:
+
+```bash
+# Works on Windows, Linux, and macOS (with NVIDIA GPU)
+pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
+```
+
+> **Important:** This exact version (2.6.0+cu124) is tested and used throughout the course.
+> CUDA 12.4 is backward compatible with all modern NVIDIA drivers (525.60.13+).
+
+---
+
+## 5. Install Python Dependencies
 
 A `requirements.txt` is provided in the repository root:
 
@@ -84,16 +115,15 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-This installs **all** packages needed across all 19 assignments. The full
+This installs **all** remaining packages needed across all 19 assignments. The full
 install takes roughly 5–15 minutes depending on your network and hardware.
 
-> **Note on PyTorch:** The command above installs the CPU version of PyTorch.
-> If you have an NVIDIA GPU, see [Section 7](#7-gpu-support-optional-but-recommended)
-> for GPU-accelerated installation.
+> **Note:** PyTorch (torch/torchvision) is NOT in requirements.txt because it must be
+> installed separately with CUDA support (see Section 4 above).
 
 ---
 
-## 5. Download NLTK Data
+## 6. Download NLTK Data
 
 Several assignments rely on NLTK corpora and models. Run this **once** after
 installing the Python packages:
@@ -129,7 +159,7 @@ python -m nltk.downloader punkt punkt_tab stopwords wordnet omw-1.4 words movie_
 
 ---
 
-## 6. Download spaCy Models
+## 7. Download spaCy Models
 
 Several assignments require spaCy English models:
 
@@ -140,113 +170,41 @@ python -m spacy download en_core_web_md
 
 ---
 
-## 7. GPU Support (optional but recommended)
+## 8. Verify GPU Access
 
-A CUDA-capable **NVIDIA GPU** significantly speeds up the deep-learning
-assignments (06, 07, 08, 09, 11, 12). All assignments include CPU fallbacks, 
-so a GPU is **not** strictly required — they will just run slower.
-
-### Which assignments benefit from a GPU?
-
-| Assignment | Topic | GPU benefit |
-|---|---|---|
-| 06 — PyTorch | Deep learning fundamentals | Moderate |
-| 07 — Transformers | Transformer models | **High** |
-| 08 — Encoder Models | BERT-based models | **High** |
-| 09 — Decoder Models | GPT-based models | **High** |
-| 11 — Fine-tuning LLMs | LLM fine-tuning | **Very High** |
-| 12 — Multi-modal Models | Vision-language models | **Very High** |
-
-### GPU Compatibility
-
-**Works with ALL modern NVIDIA GPUs:**
-- ✅ RTX 30xx series (3060, 3070, 3080, 3090)
-- ✅ RTX 40xx series (4060, 4070, 4080, 4090)
-- ✅ RTX 50xx series (5080, 5090) — when available
-- ✅ Professional cards (A100, H100, L40, RTX 6000, etc.)
-- ✅ Older cards: GTX 1660, RTX 20xx series
-
-**Minimum requirement:** NVIDIA GPU with Compute Capability 5.0+ (GTX 900 series from 2014+)
-
-### VRAM Requirements
-
-The amount of GPU memory determines which models and batch sizes you can use:
-
-| GPU VRAM | Suitable for | Typical models | Batch size |
-|---|---|---|---|
-| 4–6 GB | Basic training | Small BERT, DistilBERT | 2–4 |
-| 8–12 GB | Most assignments | BERT-base, GPT-2 | 8–16 |
-| 16–24 GB | Large models | BERT-large, GPT-2-large | 16–32 |
-| 24+ GB | Fine-tuning LLMs | LLaMA-7B (with 4-bit) | 32+ |
-
-> **Note:** Assignment 11 (Fine-tuning LLMs) requires **8GB+ VRAM**. If you have less,
-> use model quantization (4-bit/8-bit) or the course JupyterHub cluster.
-
-### Installing PyTorch with CUDA
-
-First, **uninstall** any existing PyTorch:
-
-```bash
-pip uninstall torch torchvision torchaudio -y
-```
-
-Install PyTorch with CUDA 12.4 (works on all NVIDIA drivers 525.60.13+):
-
-```bash
-# Windows / Linux / macOS
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
-```
-
-> **Why cu124?** CUDA 12.4 is **backward compatible** with all modern GPUs.
-> It works whether your `nvidia-smi` shows CUDA 11.x, 12.x, or 13.x.
-> The driver version matters more than the CUDA version shown.
-
-### Verify GPU Access
-
-Create a test script `test_gpu.py`:
-
-```python
-import torch
-
-print(f"PyTorch version: {torch.__version__}")
-print(f"CUDA available: {torch.cuda.is_available()}")
-
-if torch.cuda.is_available():
-    print(f"CUDA version: {torch.version.cuda}")
-    print(f"GPU: {torch.cuda.get_device_name(0)}")
-    
-    # Check VRAM
-    props = torch.cuda.get_device_properties(0)
-    print(f"VRAM: {props.total_memory / 1024**3:.1f} GB")
-    print(f"Compute capability: {props.major}.{props.minor}")
-else:
-    print("No GPU detected — using CPU only")
-```
-
-Run it:
+A test script `test_gpu.py` is provided in the repository root. Run it:
 
 ```bash
 python test_gpu.py
 ```
 
-Expected output:
+Expected output (with GPU):
 ```
 PyTorch version: 2.6.0+cu124
 CUDA available: True
 CUDA version: 12.4
-GPU: NVIDIA GeForce RTX 4070 Ti
-VRAM: 12.0 GB
-Compute capability: 8.9
+Number of GPUs: 1
+
+GPU 0: NVIDIA GeForce RTX 4070 Ti
+  VRAM: 12.0 GB
+  Compute capability: 8.9
+
+✅ GPU support is working correctly!
+   You can now run the deep learning assignments with GPU acceleration.
 ```
 
-### Troubleshooting
+### Troubleshooting GPU Issues
 
 **Problem:** `CUDA available: False`
 
 **Solutions:**
 1. Check if you have an NVIDIA GPU: `nvidia-smi`
 2. Update NVIDIA drivers: <https://www.nvidia.com/Download/index.aspx>
-3. Reinstall PyTorch with CUDA (see above)
+3. Reinstall PyTorch with CUDA:
+   ```bash
+   pip uninstall torch torchvision torchaudio -y
+   pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
+   ```
 4. Verify you're using the correct Python environment
 
 **Problem:** `OutOfMemoryError` during training
@@ -284,7 +242,7 @@ Compute capability: 8.9
 
 ---
 
-## 8. OpenAI API Key (Assignments 11, 12 & 16)
+## 9. OpenAI API Key (Assignments 11, 12 & 16)
 
 Assignments 11 (*Fine-tuning LLMs*), 12 (*Multi-modal Models*), and 16 
 (*Agents*) use the **OpenAI API**. You will need:
@@ -311,7 +269,7 @@ $env:OPENAI_API_KEY = "sk-..."
 
 ---
 
-## 9. Assignment-specific Notes
+## 10. Assignment-specific Notes
 
 ### Assignment 01 — Tokenization
 - Fetches live webpages via `urllib.request`; requires internet access.
@@ -384,22 +342,29 @@ $env:OPENAI_API_KEY = "sk-..."
 
 ---
 
-## 10. Submitting Your Work
+## 11. Submitting Your Work
 
-Even if you develop locally, you must **submit via the JupyterHub**:
+Even if you develop locally, you should **submit via the workflow in the repository**:
 
-1. Before submitting, **restart the kernel and run all cells** to ensure
-   the notebook executes cleanly from top to bottom.
-2. Upload your completed notebook to the JupyterHub by copying it into the
-   appropriate `Submitted Work/<topic>/` folder on the cluster.
-3. Keep the **original filename** — do not rename the notebook.
+1. **Before submitting:** Restart the kernel and run all cells to ensure
+   the notebook executes cleanly from top to bottom:
+   - In Jupyter: `Kernel → Restart & Run All`
+   - In VS Code: Click the restart button, then run all cells
+2. Copy your completed notebook to the `Submitted Work/<topic>/` folder:
+   ```bash
+   cp "Personal Workspace/01 tokenization/01_ANLP_Tokenization_2026_2027.ipynb" \
+      "Submitted Work/01 tokenization/"
+   ```
+3. **Keep the original filename** — do not rename the notebook.
+4. If using JupyterHub: Push your changes or manually upload the notebook.
+5. If working locally: Sync your `Submitted Work/` folder to the submission system.
 
-> **Tip:** As a final check, download your notebook from JupyterHub after
-> uploading and verify it opens correctly.
+> **Important:** Test your submission by opening the notebook in `Submitted Work/`
+> and running it one more time to ensure everything works.
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 ### "ModuleNotFoundError: No module named '...'"
 You likely missed a dependency. Make sure you installed from the provided
@@ -424,10 +389,18 @@ subsequent loads are instant. If your network is restricted, consider
 downloading models on a different network and copying the cache folder.
 
 ### Package version conflicts
-If you encounter version incompatibilities, try creating a fresh environment:
+If you encounter version incompatibilities, try creating a fresh environment.
+The course is tested with **Python 3.13**, but 3.10–3.12 should also work:
+
 ```bash
-conda create -n anlp-fresh python=3.10 -y
+# With conda
+conda create -n anlp-fresh python=3.13 -y
 conda activate anlp-fresh
+pip install -r requirements.txt
+
+# With venv
+python3.13 -m venv .venv-fresh
+source .venv-fresh/bin/activate  # or .venv-fresh\Scripts\Activate.ps1 on Windows
 pip install -r requirements.txt
 ```
 

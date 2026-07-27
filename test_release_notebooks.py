@@ -1,5 +1,5 @@
 """
-Test all release notebooks in ANLP-2026-2027/Assignments folder.
+Test all release notebooks in ANLP-Student/Assignments folder.
 - Makes a temporary COPY of each notebook
 - Runs the copy with --allow-errors (continues past NotImplementedError from exercises)
 - Original notebooks remain 100% UNTOUCHED
@@ -20,7 +20,7 @@ from datetime import datetime
 import shutil
 
 # Load .env file from Admin folder
-env_file = Path(__file__).parent.parent / 'ANLP-Admin-2026-2027' / '.env'
+env_file = Path(__file__).parent.parent / 'ANLP-Admin' / '.env'
 if env_file.exists():
     print(f"Loading environment from: {env_file}\n")
     with open(env_file, 'r', encoding='utf-8') as f:
@@ -32,7 +32,7 @@ if env_file.exists():
 else:
     print(f"⚠️  Warning: .env file not found at {env_file}")
 
-# Notebook paths relative to ANLP-2026-2027
+# Notebook paths relative to ANLP-Student
 NOTEBOOKS = [
     "Assignments/01 tokenization/01_ANLP_Tokenization_2026_2027.ipynb",
     "Assignments/02 document_representation/02_ANLP_Document_Representation_2026_2027.ipynb",

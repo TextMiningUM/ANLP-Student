@@ -1,111 +1,105 @@
 # =============================================================================
-# ANLP 2026-2027 — Python Dependencies
+# ANLP 2026-2027 — Python Dependencies 
 # =============================================================================
+# Student-only dependencies for ANLP 2026-2027 course.
 # Tested with Python 3.13 (recommended).
 # Python 3.10–3.12 should also work; Python 3.14+ may have compatibility
 # issues with some packages.
 #
-# Install with:  pip install -r requirements.txt
+# INSTALLATION:
+#   Step 1 - Install PyTorch with CUDA support FIRST:
+#     pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
 #
-# GPU SUPPORT (NVIDIA only):
-#   This installs CPU-only PyTorch by default. For GPU acceleration:
-#   1. First uninstall: pip uninstall torch torchvision torchaudio -y
-#   2. Then install CUDA version: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
-#   3. Works with all modern NVIDIA GPUs (RTX 30xx, 40xx, 50xx, A100, H100, etc.)
-#   4. See LOCAL_SETUP.md section 7 for full instructions
+#   Step 2 - Install remaining packages:
+#     pip install -r requirements.txt
+#
+# GPU SUPPORT:
+#   All assignments require PyTorch with CUDA support (torch 2.6.0+cu124).
+#   Works with ALL modern NVIDIA GPUs (GTX 1660+, RTX 20/30/40/50 series, A/H series).
+#   Minimum requirement: NVIDIA drivers 525.60.13+ (check with: nvidia-smi)
+#   See LOCAL_SETUP_STUDENT.md section 4 for detailed installation instructions.
 # =============================================================================
 
 # --- Core scientific stack ---------------------------------------------------
-numpy
-pandas
-scipy
-matplotlib
-seaborn
-scikit-learn
-tqdm
-ipywidgets
+numpy==2.4.6
+pandas==3.0.3
+scipy==1.18.0
+matplotlib==3.11.1
+seaborn==0.13.2
+scikit-learn==1.9.0
+tqdm==4.69.0
+ipywidgets==8.1.8
 
 # --- NLP foundations ---------------------------------------------------------
-nltk
-beautifulsoup4
-gensim
-spacy
-langdetect
-transliterate
+nltk==3.10.0
+beautifulsoup4==4.15.0
+gensim==4.4.0
+spacy==3.8.14
+langdetect==1.0.9
+transliterate==1.10.2
 unidecode
 
 # --- Deep learning / Transformers --------------------------------------------
-torch
-transformers
-accelerate
-sentence-transformers
-tokenizers
+# NOTE: torch and torchvision are installed separately (see header)
+accelerate==1.14.0
+transformers==5.14.1
+sentence-transformers==5.6.0
+tokenizers==0.22.2
 
 # --- HuggingFace ecosystem ---------------------------------------------------
-datasets
-evaluate
+datasets==5.0.0
+evaluate==0.4.6
 huggingface-hub
 
 # --- Retrieval & embeddings --------------------------------------------------
-faiss-cpu
-rank_bm25
+faiss-cpu==1.14.3
+rank-bm25==0.2.2
 
 # --- NER / sequence labelling ------------------------------------------------
-python-crfsuite
-sklearn-crfsuite
-seqeval
+python-crfsuite==0.9.12
+sklearn-crfsuite==0.5.0
+seqeval==1.2.2
 
 # --- Evaluation & metrics ----------------------------------------------------
-rouge-score
-bert-score
-sacrebleu
+rouge-score==0.1.2
+bert-score==0.3.13
+sacrebleu==2.6.0
 # bleurt  # Not compatible with Python 3.13 - replaced by chrF (via sacrebleu package)
 #         # chrF is character-level F-score, works well for morphologically rich languages
 
 # --- Explainability ----------------------------------------------------------
-shap
-lime
-captum
+shap==0.52.0
+lime==0.2.0.1
+captum==0.9.0
 
 # --- Multi-modal models ------------------------------------------------------
-pillow
-torchvision
-timm
+pillow==12.3.0
+# NOTE: torchvision is installed separately with torch (see header)
+timm==1.0.28
 
 # --- Speech processing -------------------------------------------------------
-librosa
-soundfile
-audioread
-pydub
+librosa==0.11.0
+soundfile==0.14.0
+audioread==3.1.0
+pydub==0.25.1
 
 # --- Visualisations ----------------------------------------------------------
-plotly
-wordcloud
-svgling
-graphviz
+plotly==6.9.0
+wordcloud==1.9.6
+svgling==0.5.0
+graphviz==0.21
 
 # --- String matching ---------------------------------------------------------
-python-Levenshtein
+python-Levenshtein==0.27.3
 
 # --- Graphs ------------------------------------------------------------------
-networkx
+networkx==3.6.1
 
 # --- OpenAI (Assignments 11, 12 & 16) ---------------------------------------
-openai>=1.40.0
-openai-agents
-tiktoken
+openai==2.47.0
+openai-agents==0.18.3
+tiktoken==0.13.0
 
 # --- Jupyter notebook enhancements ------------------------------------------
-ipython
-jupyter
-notebook
-
-# --- Testing & validation ---------------------------------------------------
-pytest
-pytest-timeout
-
-# --- Utilities ---------------------------------------------------------------
-requests
-python-dotenv
-pyyaml
-jsonlines
+ipython==9.15.0
+jupyter==1.1.1
