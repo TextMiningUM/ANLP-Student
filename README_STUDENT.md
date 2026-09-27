@@ -184,6 +184,8 @@ development is supported for students who prefer it.
   - Test cells (cells with `assert` statements)
   - Cell metadata or nbgrader tags
   - The notebook filename
+  - Accidentally breaking these tags (e.g. by deleting/duplicating/splitting a cell) can make an
+    exercise impossible to grade — run `check_my_submission.py` (see below) to catch this before you submit
 - **Academic integrity:** All work must be your own
   - Collaboration policy is detailed in the course syllabus
   - Code plagiarism will be detected and penalized
@@ -201,6 +203,40 @@ jupyter nbconvert --to notebook --execute "Submitted Work/<topic>/<notebook>.ipy
 ```
 
 If the notebook executes without errors, your submission is ready.
+
+### Checking Your Grading Tags Are Intact
+
+Every exercise cell carries an invisible grading tag (`grade_id`) plus, for exercises with
+`### BEGIN SOLUTION` / `### END SOLUTION` markers, the markers themselves. These normally survive
+editing, but certain actions can break them without any visible error in Jupyter:
+
+- deleting a graded cell and typing your answer into a brand new cell instead
+- duplicating a cell (e.g. copy-pasting it to keep a backup)
+- splitting or merging cells (`Ctrl+Shift+-`, or merging with the cell above/below)
+- converting a cell's type between code and markdown (`Y` / `M` shortcuts)
+
+If this happens, the grading system can no longer find your answer for that exercise — it looks
+identical to leaving it blank, so it would silently score 0 instead of being flagged.
+
+Run `check_my_submission.py` **before you submit** to catch this yourself:
+
+```bash
+# Check one assignment (compares Submitted Work/, falling back to Personal Workspace/,
+# against the untouched original in Assignments/)
+python check_my_submission.py "01 tokenization"
+
+# Check every assignment you have a notebook for
+python check_my_submission.py --all
+```
+
+It prints one of two things per question:
+
+- `BLOCK` — the grading tag is broken; the instructions explain exactly what to restore. Fix these
+  and re-run the check before submitting.
+- `WARN` — a minor issue (e.g. the `### BEGIN/END SOLUTION` markers are missing but your answer is
+  still gradable). Fixing these isn't required but is good practice.
+
+A clean run prints `No blocking issues found.` and exits with status 0 — safe to submit.
 
 ## Prerequisites
 
