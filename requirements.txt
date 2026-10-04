@@ -98,8 +98,12 @@ networkx==3.6.1
 # --- OpenAI (Assignments 11, 12 & 16) ---------------------------------------
 openai==2.47.0
 openai-agents==0.18.3
+
+# --- Anthropic (autograder dev tooling, e.g. atomic-facts regeneration) -----
+anthropic==1.11.0
 tiktoken==0.13.0
 
 # --- Jupyter notebook enhancements ------------------------------------------
 ipython==9.15.0
 jupyter==1.1.1
+nbformat
