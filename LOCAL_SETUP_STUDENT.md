@@ -8,6 +8,20 @@
 
 ---
 
+> ⚠️ **IMPORTANT: You must use Python 3.13**
+>
+> All tutorials in this course are built and tested against **Python 3.13**,
+> run inside a dedicated **virtual environment**. This is also the Python
+> version used on the FSE-CS Cloud.
+>
+> **Do not use Python 3.14 or newer.** Several packages required by the
+> tutorials do not yet have compatible releases for Python 3.14+, and
+> notebooks will fail with dependency or installation errors if you use a
+> newer version. Always create your virtual environment with Python 3.13
+> explicitly, as shown in [Section 3](#3-create-a-python-environment) below.
+
+---
+
 ## Table of Contents
 
 1. [Prerequisites](#1-prerequisites)
@@ -29,7 +43,7 @@
 
 | Requirement | Details |
 |---|---|
-| **Python** | 3.13 (recommended and tested). Python 3.10–3.12 should also work. Python 3.14+ may cause compatibility issues with some packages. |
+| **Python** | **3.13 required.** Use a dedicated virtual environment with Python 3.13 (same version as the FSE-CS Cloud). Python 3.14+ is **not supported** and will cause dependency/installation failures. |
 | **pip** | Latest version (`python -m pip install --upgrade pip`) |
 | **Git** | To clone the repository |
 | **GPU** | **NVIDIA GPU required** for all deep learning assignments (06-16). See [Section 4](#4-install-pytorch-with-cuda) for requirements. |
@@ -52,6 +66,12 @@ cd ANLP-Student
 
 ## 3. Create a Python Environment
 
+> ⚠️ **Use Python 3.13 — this is not optional.** Creating your environment
+> with any other Python version (especially Python 3.14+) will lead to
+> dependency installation failures and notebooks that do not run correctly.
+> Before continuing, confirm you have Python 3.13 installed:
+> `python3.13 --version` (or `python --version` if 3.13 is your system default).
+
 We strongly recommend using a **virtual environment** to avoid conflicts with
 other projects.
 
@@ -64,8 +84,13 @@ conda activate anlp
 
 ### Option B — venv (built-in)
 
+> Make sure to invoke **Python 3.13 specifically** when creating the venv
+> (e.g. `python3.13 -m venv .venv`), especially if your system also has a
+> newer Python version installed — `python` or `python3` may point to the
+> wrong version.
+
 ```bash
-python -m venv .venv
+python3.13 -m venv .venv
 
 # Activate on Linux/macOS:
 source .venv/bin/activate
@@ -389,8 +414,11 @@ subsequent loads are instant. If your network is restricted, consider
 downloading models on a different network and copying the cache folder.
 
 ### Package version conflicts
-If you encounter version incompatibilities, try creating a fresh environment.
-The course is tested with **Python 3.13**, but 3.10–3.12 should also work:
+If you encounter version incompatibilities, this is very often caused by using
+the wrong Python version. **Double-check that your virtual environment is
+running Python 3.13** (`python --version`) before troubleshooting further —
+Python 3.14+ is known to break multiple required packages. If needed, delete
+your environment and create a fresh Python 3.13 one:
 
 ```bash
 # With conda
