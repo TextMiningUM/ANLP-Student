@@ -55,6 +55,77 @@ NOTEBOOKS = [
     "Assignments/A3 NLP applications/A3_ANLP_NLP_Applications_2026_2027.ipynb",
 ]
 
+# Known non-critical errors per notebook (benign/expected failures unrelated to
+# the self-hosted dataset/notebook changes, e.g. platform quirks or missing
+# optional system binaries). Mirrors the allowlist used by
+# ANLP-Admin/batch_test_all_notebooks.py so the same known issues aren't
+# re-flagged as new critical failures here.
+KNOWN_NON_CRITICAL = {
+    '12': ['WinError 127', 'torchaudio'],
+    '13': ['ValueError: Expected input batch_size', 'Whisper expects the mel input',
+           'AssertionError: sample_indices must be defined', 'AssertionError: test_accuracy must be defined',
+           'AssertionError: cnn_test_accuracy must be defined', 'AssertionError: Must test at least 3 SNR values',
+           'RuntimeError: shape', "NameError: name 'test_loader' is not defined"],
+    '14': ['ExecutableNotFound: failed to execute', 'GraphViz', 'AlignedSent', 'IndexError: list index out of range'],
+}
+
+
+def get_notebook_key(notebook_rel_path):
+    """Extract the short identifier (e.g. '01', '08', 'A1') from a notebook path."""
+    folder_name = Path(notebook_rel_path).parent.name  # e.g. "08 encoder models"
+    return folder_name.split(" ")[0]
+
+
+def classify_cell_errors(executed_notebook_path, nb_key):
+    """
+    Inspect the executed (temporary) notebook's cell outputs and classify any
+    errors found:
+      - Expected: a NotImplementedError raised inside an exercise cell
+        (nbgrader 'solution' or 'task' cell) - this is normal for an
+        unanswered release/student notebook and is not reported at all.
+      - Non-critical: matches a known benign pattern in KNOWN_NON_CRITICAL
+        for this notebook (platform quirks, cascading effects of earlier
+        stubs, etc.) - reported as a warning.
+      - Critical: anything else - a real, unexpected failure that would not
+        occur in a correctly working notebook/infrastructure.
+
+    Returns (critical_errors, non_critical_errors, expected_count) where the
+    first two are lists of {'cell', 'ename', 'evalue'} dicts.
+    """
+    with open(executed_notebook_path, 'r', encoding='utf-8') as f:
+        nb = json.load(f)
+
+    known_patterns = KNOWN_NON_CRITICAL.get(nb_key, [])
+    critical_errors = []
+    non_critical_errors = []
+    expected_count = 0
+
+    for i, cell in enumerate(nb['cells']):
+        if cell.get('cell_type') != 'code':
+            continue
+        nbgrader_meta = cell.get('metadata', {}).get('nbgrader', {})
+        is_exercise = nbgrader_meta.get('solution', False) or nbgrader_meta.get('task', False)
+
+        for output in cell.get('outputs', []):
+            if output.get('output_type') != 'error':
+                continue
+            ename = output.get('ename', 'Unknown')
+            evalue = output.get('evalue', '')
+            traceback_text = ''.join(output.get('traceback', []))
+            error_info = {'cell': i + 1, 'ename': ename, 'evalue': evalue}
+
+            if is_exercise and ename == 'NotImplementedError':
+                expected_count += 1
+                continue
+
+            error_text = f"{ename} {evalue} {traceback_text}"
+            if any(pattern in error_text for pattern in known_patterns):
+                non_critical_errors.append(error_info)
+            else:
+                critical_errors.append(error_info)
+
+    return critical_errors, non_critical_errors, expected_count
+
 
 def count_exercise_cells(notebook_path):
     """
@@ -95,10 +166,13 @@ def test_notebook(notebook_path, python_exec):
         print(f"📝 Cells: {total_cells} total, {exercise_count} exercises (will hit NotImplementedError)")
         
         # Execute with --allow-errors (continues past NotImplementedError from exercises)
+        # NOTE: invoke nbconvert directly (python -m nbconvert), not via the
+        # `jupyter` command dispatcher (python -m jupyter nbconvert) - the
+        # dispatcher fails silently in this environment for unrelated reasons.
         start_time = time.time()
         result = subprocess.run(
             [
-                python_exec, '-m', 'jupyter', 'nbconvert',
+                python_exec, '-m', 'nbconvert',
                 '--execute',
                 '--allow-errors',  # Continue past NotImplementedError
                 '--to', 'notebook',
@@ -113,24 +187,50 @@ def test_notebook(notebook_path, python_exec):
         )
         duration = time.time() - start_time
         
-        # Success if output file was created (warnings are OK)
-        success = output_file.exists()
+        # A file is written even if some cells errored (--allow-errors), so
+        # process-level completion alone is not enough to call this a pass.
+        # Inspect per-cell outputs to tell expected NotImplementedError /
+        # known-benign issues apart from real, unexpected failures.
+        process_completed = output_file.exists()
+        nb_key = get_notebook_key(notebook_path)
         
-        if success:
-            print(f"✅ PASSED - {duration:.1f}s (original notebook unchanged)")
-            message = f"Success - {exercise_count} exercises encountered NotImplementedError (expected)"
+        if process_completed:
+            critical_errors, non_critical_errors, expected_count = classify_cell_errors(output_file, nb_key)
+            
+            if critical_errors:
+                status = 'FAILED'
+            elif non_critical_errors:
+                status = 'PASSED_WITH_WARNINGS'
+            else:
+                status = 'PASSED'
+            
+            if status == 'PASSED':
+                print(f"✅ PASSED - {duration:.1f}s (original notebook unchanged)")
+                message = f"Success - {expected_count} exercises encountered NotImplementedError (expected)"
+            elif status == 'PASSED_WITH_WARNINGS':
+                print(f"⚠️  PASSED WITH WARNINGS - {duration:.1f}s ({len(non_critical_errors)} known non-critical error(s))")
+                for err in non_critical_errors[:3]:
+                    print(f"    Cell {err['cell']}: {err['ename']}: {err['evalue'][:100]}")
+                message = f"Passed with {len(non_critical_errors)} known non-critical error(s)"
+            else:
+                print(f"❌ FAILED - {duration:.1f}s ({len(critical_errors)} unexpected critical error(s))")
+                for err in critical_errors[:5]:
+                    print(f"    Cell {err['cell']}: {err['ename']}: {err['evalue'][:150]}")
+                message = f"Failed: {len(critical_errors)} unexpected error(s) - first: {critical_errors[0]['ename']}: {critical_errors[0]['evalue'][:150]}"
         else:
-            print(f"❌ FAILED - Error:")
+            status = 'EXECUTION_ERROR'
+            critical_errors, non_critical_errors, expected_count = [], [], 0
+            print(f"❌ EXECUTION ERROR - nbconvert process did not complete:")
             error_output = result.stderr if result.stderr else result.stdout
             print(error_output[-500:] if len(error_output) > 500 else error_output)
-            message = f"Failed: {error_output[-200:]}"
+            message = f"Execution error: {error_output[-200:]}"
         
         cells_info = {
             'total': total_cells,
             'exercises': exercise_count
         }
         
-        return success, duration, message, cells_info
+        return status, duration, message, cells_info, critical_errors, non_critical_errors
         
     finally:
         # Clean up temp files
@@ -187,22 +287,26 @@ def main():
         print("=" * 80)
         
         try:
-            success, duration, message, cells_info = test_notebook(notebook_path, python_exec)
+            status, duration, message, cells_info, critical_errors, non_critical_errors = test_notebook(notebook_path, python_exec)
             results.append({
                 'notebook': str(notebook_rel_path),
-                'success': success,
+                'status': status,
                 'duration': duration,
                 'message': message,
-                'cells_info': cells_info
+                'cells_info': cells_info,
+                'critical_errors': critical_errors,
+                'non_critical_errors': non_critical_errors
             })
         except Exception as e:
             print(f"❌ Exception during test: {e}")
             results.append({
                 'notebook': str(notebook_rel_path),
-                'success': False,
+                'status': 'EXECUTION_ERROR',
                 'duration': 0,
                 'message': f"Exception: {str(e)}",
-                'cells_info': {'total': 0, 'exercises': 0}
+                'cells_info': {'total': 0, 'exercises': 0},
+                'critical_errors': [],
+                'non_critical_errors': []
             })
         
         print()  # Blank line between tests
@@ -214,12 +318,14 @@ def main():
     print("📊 TEST SUMMARY")
     print("=" * 80)
     
-    successful = sum(1 for r in results if r['success'])
-    failed = len(results) - successful
+    passed = sum(1 for r in results if r['status'] == 'PASSED')
+    warned = sum(1 for r in results if r['status'] == 'PASSED_WITH_WARNINGS')
+    failed = sum(1 for r in results if r['status'] in ('FAILED', 'EXECUTION_ERROR'))
     total_exercises = sum(r['cells_info']['exercises'] for r in results)
     
     print(f"Total notebooks tested: {len(results)}")
-    print(f"✅ Successful: {successful}")
+    print(f"✅ Passed: {passed}")
+    print(f"⚠️  Passed with warnings: {warned}")
     print(f"❌ Failed: {failed}")
     print(f"📚 Total exercises skipped: {total_exercises}")
     print(f"⏱️  Total time: {total_time:.1f}s ({total_time/60:.1f}m)")
@@ -227,17 +333,19 @@ def main():
     
     # Detailed results
     print("Detailed Results:")
+    status_symbol = {'PASSED': '✅', 'PASSED_WITH_WARNINGS': '⚠️ ', 'FAILED': '❌', 'EXECUTION_ERROR': '❌'}
     for r in results:
-        status = "✅" if r['success'] else "❌"
+        symbol = status_symbol.get(r['status'], '❓')
         nb_name = Path(r['notebook']).name
-        print(f"  {status} {nb_name:50s} {r['duration']:6.1f}s  {r['cells_info']['total']:3d} cells, {r['cells_info']['exercises']:2d} exercises")
+        print(f"  {symbol} {nb_name:50s} {r['duration']:6.1f}s  {r['cells_info']['total']:3d} cells, {r['cells_info']['exercises']:2d} exercises  [{r['status']}]")
     
     # Save report
     report = {
         'timestamp': datetime.now().isoformat(),
         'total_time': total_time,
         'notebooks_tested': len(results),
-        'successful': successful,
+        'passed': passed,
+        'passed_with_warnings': warned,
         'failed': failed,
         'total_exercises_skipped': total_exercises,
         'results': results
@@ -249,7 +357,7 @@ def main():
     
     print(f"\n📄 Full report saved to: {report_file}")
     
-    # Exit with error code if any tests failed
+    # Exit with error code only on real (critical) failures; warnings are OK
     sys.exit(0 if failed == 0 else 1)
 
 
