@@ -3,6 +3,15 @@
 **Advanced Natural Language Processing** — Maastricht University  
 Department of Advanced Computer Sciences, Faculty of Science and Engineering
 
+> ⚠️ **IMPORTANT: Python version requirement**
+>
+> You **must** use **Python 3.13** inside a dedicated virtual environment to run
+> these tutorials. This is the same Python version used on the FSE-CS Cloud.
+> **Python 3.14 and newer are not supported**: several required packages have
+> dependencies that are not yet compatible with Python 3.14+, and the notebooks
+> will fail to run correctly. See [LOCAL_SETUP_STUDENT.md](LOCAL_SETUP_STUDENT.md)
+> for step-by-step setup instructions.
+
 ## Structure
 
 ```

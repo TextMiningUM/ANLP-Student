@@ -7,6 +7,11 @@ Usage in notebooks:
     
     dataset = load_anlp_dataset("opus_books")
     # Returns same format as datasets.load_dataset()
+    
+    # Convenience wrappers for commonly used datasets:
+    from dataset_loader import load_cnn_dailymail, load_imdb
+    dataset = load_cnn_dailymail()  # DatasetDict: train/validation/test
+    dataset = load_imdb()           # DatasetDict: train/test/unsupervised
 """
 
 import requests
@@ -34,14 +39,6 @@ DATASETS_REGISTRY = {
             "config": "en-nl"
         }
     },
-    "ml_spoken_words": {
-        "filename": "ml_spoken_words.tar.gz",
-        "sha256": None,
-        "hf_fallback": {
-            "name": "MLCommons/ml_spoken_words",
-            "languages": ["nl"]
-        }
-    },
     "imdb": {
         "filename": "imdb.tar.gz",
         "sha256": "b19ea24ec44e37a28b2d64446d0ed5d7c71202b0e59bad2d121c985860a9b3bb",
@@ -56,12 +53,11 @@ DATASETS_REGISTRY = {
             "name": "hgissbkh/conll2003-en"
         }
     },
-    "universal_dependencies": {
-        "filename": "universal_dependencies.tar.gz",
-        "sha256": None,
+    "conll2003_pos": {
+        "filename": "conll2003_pos.tar.gz",
+        "sha256": "818f688f4c8cce75e8e1f5fa9a2f52c9c386352e37050a6c64325daf915edae1",
         "hf_fallback": {
-            "name": "universal_dependencies",
-            "config": "en_ewt"
+            "name": "tomaarsen/conll2003"
         }
     },
     "glue_sst2": {
@@ -264,6 +260,23 @@ def update_checksums(manifest_path):
         if dataset_name in DATASETS_REGISTRY:
             DATASETS_REGISTRY[dataset_name]["sha256"] = package["sha256"]
             print(f"✅ Updated checksum for {dataset_name}")
+
+
+def load_cnn_dailymail():
+    """Load the CNN/DailyMail summarization dataset (train/validation/test)."""
+    return load_anlp_dataset("cnn_dailymail")
+
+
+def load_imdb():
+    """Load the IMDB movie review sentiment dataset (train/test/unsupervised)."""
+    return load_anlp_dataset("imdb")
+
+
+def load_conll2003_pos():
+    """Load CoNLL-2003 with POS tags (train/validation/test). Unlike the plain
+    `conll2003` entry (NER-only mirror), this variant also includes `pos_tags`
+    and `chunk_tags`, needed for POS-tagging exercises."""
+    return load_anlp_dataset("conll2003_pos")
 
 
 # Example usage
